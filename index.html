@@ -1,0 +1,121 @@
+<html>
+
+<head>
+    <title></title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/jquery-highlight@3.5.0/jquery.highlight.js"></script>
+    <style>
+        body {
+            font-family: Calibri, Tahoma, Verdana;
+        }
+
+        input {
+            font-family: inherit;
+        }
+
+        input[type=button] {
+            min-height: 24px;
+            min-width: 64px;
+        }
+
+        body p {
+            font-family: Consolas;
+            text-align: justified;
+            margin: 10px;
+            0 0 0;
+        }
+
+        .highlight {
+            background-color: yellow;
+        }
+
+        .emptyBlock1000 {
+            height: auto;
+        }
+
+        .emptyBlock2000 {
+            height: auto;
+        }
+
+        .current {
+            background-color: #957F68 !important;
+            color: #ffffff;
+        }
+    </style>
+    <script type='text/javascript'>
+        var lstEl = null;
+        var cntr = -1;
+
+        $(document).ready(function () {
+            $('#btnSearch').click(function () {
+                lstEl = null;
+                cntr = -1;
+                var vl = document.getElementById('searchTerm').value;
+                // $("#bodyContainer").removeHighlight();
+                $(document).highlight(vl);
+            });
+
+            $('#btnNext').click(function () {
+                alert(cntr);
+                if (lstEl === null) {
+                    lstEl = $('#bodyContainer').find('span.highlight');
+                    if (!lstEl || lstEl.length === 0) {
+                        lstEl = null;
+                        return;
+                    }
+                }
+                if (cntr < lstEl.length - 1) {
+                    cntr++;
+                    if (cntr > 0) {
+                        $(lstEl[0]).removeClass('current');
+                    }
+                    var elm = lstEl[cntr];
+                    $(elm).addClass('current');
+                } else
+                    alert("End of search reached!");
+            });
+
+            $('#btnPrev').click(function () {
+                alert(cntr);
+                if (lstEl === null) {
+                    lstEl = $('#bodyContainer').find('span.highlight');
+                    if (!lstEl || lstEl.length === 0) {
+                        lstEl = null;
+                        return;
+                    }
+                }
+                if (cntr > 0) {
+                    cntr--;
+                    if (cntr < lstEl.length) {
+                        $(lstEl[cntr + 1]).removeClass('current');
+                    }
+                    var elm = lstEl[cntr];
+                    $(elm).addClass('current');
+                } else
+                    alert("Begining of search!");
+            });
+        });
+    </script>
+</head>
+
+<body>
+    <form name="frmMain" id="frmMain" method="post">
+        <input type="text" id="searchTerm" />
+        <input type="button" id="btnSearch" value="search" />
+        <input type="button" id="btnNext" value="next" />
+        <input type="button" id="btnPrev" value="prev" />
+    </form><br />
+    <div id="bodyContainer">
+        <p class="emptyBlock1000">Empty Space to test Scrolling functionality</p>
+        <p>Welcome to my search and highlight script</p>
+        <p>By Tom Alexander<br />
+            Searching for terms can be done by using the browser's control (or cmd) + F feature.</p>
+        <p>The problem is that not many people know about it and therefore its usefulness goes out the window</p>
+        <p>Using this script, we can mimic that functionality by using a search box and button</p>
+        <p>More text
+        <p class="emptyBlock2000">Empty Space to test Scrolling functionality</p>
+        </p>
+    </div>
+</body>
+
+</html>
