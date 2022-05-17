@@ -16,8 +16,9 @@ import argparse
 from skimage.metrics import structural_similarity as compare_ssim
 from selenium.webdriver.support.ui import WebDriverWait
 from Screenshot import Screenshot_Clipping
-
-
+from webdriver_manager.microsoft import EdgeChromiumDriverManager
+from selenium import webdriver
+from selenium.webdriver.edge.service import Service
 
 app = Flask(__name__)
 MIN_AREA = 200
@@ -170,7 +171,9 @@ def sportTheDifferenceBetweenImagesMethod3():
 
 @app.route('/api/launch-browser', methods=['GET'])
 def launchBrowserAndEmbed():
-  driver = driverInitialization()
+  # driver = driverInitialization()
+  s=Service(EdgeChromiumDriverManager().install())
+  driver = webdriver.Edge(service=s)
   driver.get('https://worldwide.espacenet.com/3.2/rest-services/legal/publication/EP/0546789/A2.json')
   driver.execute_script("""var jquery_script = document.createElement('script'); 
         jquery_script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js';
@@ -178,7 +181,7 @@ def launchBrowserAndEmbed():
         document.getElementsByTagName('head')[0].appendChild(jquery_script);"""
       )
   time.sleep(5)
-  driver.execute_script('inst = new Mark(document.gquerySelector("body")); var isMarked = inst.mark("COMMUNICATION"); console.log(isMarked)')
+  driver.execute_script('inst = new Mark(document.querySelector("body")); var isMarked = inst.mark("COMMUNICATION"); console.log(isMarked)')
 
   S = lambda X: driver.execute_script('return document.body.parentNode.scroll'+X)
   driver.set_window_size(S('Width'),S('Height'))                                                                                                               
@@ -197,7 +200,7 @@ def launchBrowserAndEmbed2():
         document.getElementsByTagName('head')[0].appendChild(jquery_script);"""
       )
   time.sleep(5)
-  driver.execute_script('inst = new Mark(document.gquerySelector("body")); var isMarked = inst.mark("COMMUNICATION"); console.log(isMarked)')
+  driver.execute_script('inst = new Mark(document.querySelector("body")); var isMarked = inst.mark("COMMUNICATION"); console.log(isMarked)')
 
   S = lambda X: driver.execute_script('return document.body.parentNode.scroll'+X)
   driver.set_window_size(S('Width'),S('Height'))                                                                                                               
@@ -209,7 +212,7 @@ def launchBrowserAndEmbed2():
 
 def driverInitialization():
     options = webdriver.ChromeOptions()
-    # options.headless = True
+    options.headless = True
     webdriver.DesiredCapabilities.CHROME['acceptSslCerts'] = True
     driver = webdriver.Chrome(executable_path='./chromedriver.exe',options=options)
     return driver
@@ -219,6 +222,6 @@ def firefoxDriverInitialization():
     driver.maximize_window()
     return driver
 
-app.run(port=5000)
+app.run(port=5000, debug=True)
 
 
