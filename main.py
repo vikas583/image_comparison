@@ -1,5 +1,9 @@
 # from crypt import methods
+
+from lib2to3.pgen2 import driver
+from pickle import TRUE
 import time
+
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from flask import Flask, request, jsonify
@@ -10,7 +14,8 @@ import imutils
 import numpy as np
 import argparse
 from skimage.metrics import structural_similarity as compare_ssim
-
+from selenium.webdriver.support.ui import WebDriverWait
+from Screenshot import Screenshot_Clipping
 
 
 
@@ -28,10 +33,7 @@ def say_hello():
 @app.route('/api/task', methods=['POST'])
 def create_task():
     
-    options = webdriver.ChromeOptions()
-    options.headless = True
-    webdriver.DesiredCapabilities.CHROME['acceptSslCerts'] = True
-    driver = webdriver.Chrome(executable_path='./chromedriver.exe',options=options)
+    driver = driverInitialization()
     driver.execute_script("Object.defineProperty(navigator, 'webdriver', {get: () => undefined})")
     driver.execute_cdp_cmd("Page.addScriptToEvaluateOnNewDocument", {
         "source":
@@ -164,6 +166,34 @@ def sportTheDifferenceBetweenImagesMethod3():
   cv2.imshow("Diff", diff)
   cv2.imshow("Thresh", thresh)
   cv2.waitKey(0)
+
+
+@app.route('/api/launch-browser', methods=['GET'])
+def launchBrowserAndEmbed():
+  driver = driverInitialization()
+  driver.get('https://worldwide.espacenet.com/3.2/rest-services/legal/publication/EP/0546789/A2.json')
+  driver.execute_script("""var jquery_script = document.createElement('script'); 
+        jquery_script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js';
+        jquery_script.onload = function(){inst = new Mark(document.querySelector("body")); var isMarked = inst.mark("COMMUNICATION"); console.log(isMarked)};
+        document.getElementsByTagName('head')[0].appendChild(jquery_script);"""
+      )
+  time.sleep(5)
+  driver.execute_script('inst = new Mark(document.querySelector("body")); var isMarked = inst.mark("COMMUNICATION"); console.log(isMarked)')
+
+  S = lambda X: driver.execute_script('return document.body.parentNode.scroll'+X)
+  driver.set_window_size(S('Width'),S('Height'))                                                                                                               
+  driver.find_element_by_tag_name('body').screenshot('./screenshots/take_'+time.strftime("%Y%m%d-%H%M%S")+'.png')
+  driver.quit()
+    
+  return jsonify({"status": True, 'message': "Request visited successfully!"})
+  
+
+def driverInitialization():
+    options = webdriver.ChromeOptions()
+    # options.headless = True
+    webdriver.DesiredCapabilities.CHROME['acceptSslCerts'] = True
+    driver = webdriver.Chrome(executable_path='./chromedriver.exe',options=options)
+    return driver
 
 app.run(port=5000)
 

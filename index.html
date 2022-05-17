@@ -51,8 +51,8 @@
                 lstEl = null;
                 cntr = -1;
                 var vl = document.getElementById('searchTerm').value;
-                // $("#bodyContainer").removeHighlight();
-                $(document).highlight(vl);
+                $("#bodyContainer").unhighlight();
+                $('body').highlight(vl);
             });
 
             $('#btnNext').click(function () {
