@@ -178,7 +178,7 @@ def launchBrowserAndEmbed():
         document.getElementsByTagName('head')[0].appendChild(jquery_script);"""
       )
   time.sleep(5)
-  driver.execute_script('inst = new Mark(document.querySelector("body")); var isMarked = inst.mark("COMMUNICATION"); console.log(isMarked)')
+  driver.execute_script('inst = new Mark(document.gquerySelector("body")); var isMarked = inst.mark("COMMUNICATION"); console.log(isMarked)')
 
   S = lambda X: driver.execute_script('return document.body.parentNode.scroll'+X)
   driver.set_window_size(S('Width'),S('Height'))                                                                                                               
@@ -187,12 +187,36 @@ def launchBrowserAndEmbed():
     
   return jsonify({"status": True, 'message': "Request visited successfully!"})
   
+@app.route('/api/launch-browser-2', methods=['GET'])
+def launchBrowserAndEmbed2():
+  driver = firefoxDriverInitialization()
+  driver.get('https://worldwide.espacenet.com/3.2/rest-services/legal/publication/EP/0546789/A2.json')
+  driver.execute_script("""var jquery_script = document.createElement('script'); 
+        jquery_script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js';
+        jquery_script.onload = function(){inst = new Mark(document.querySelector("body")); var isMarked = inst.mark("COMMUNICATION"); console.log(isMarked)};
+        document.getElementsByTagName('head')[0].appendChild(jquery_script);"""
+      )
+  time.sleep(5)
+  driver.execute_script('inst = new Mark(document.gquerySelector("body")); var isMarked = inst.mark("COMMUNICATION"); console.log(isMarked)')
+
+  S = lambda X: driver.execute_script('return document.body.parentNode.scroll'+X)
+  driver.set_window_size(S('Width'),S('Height'))                                                                                                               
+  driver.find_element_by_tag_name('body').screenshot('./screenshots/take_'+time.strftime("%Y%m%d-%H%M%S")+'.png')
+  driver.quit()
+    
+  return jsonify({"status": True, 'message': "Request visited successfully!"})
+
 
 def driverInitialization():
     options = webdriver.ChromeOptions()
     # options.headless = True
     webdriver.DesiredCapabilities.CHROME['acceptSslCerts'] = True
     driver = webdriver.Chrome(executable_path='./chromedriver.exe',options=options)
+    return driver
+
+def firefoxDriverInitialization():
+    driver = webdriver.Firefox(executable_path='./geckodriver.exe')
+    driver.maximize_window()
     return driver
 
 app.run(port=5000)
