@@ -12,7 +12,6 @@ from PIL import Image, ImageChops, ImageDraw
 import cv2
 import imutils  
 import numpy as np
-import argparse
 from skimage.metrics import structural_similarity as compare_ssim
 from selenium.webdriver.support.ui import WebDriverWait
 from Screenshot import Screenshot_Clipping
@@ -178,7 +177,7 @@ def launchBrowserAndEmbed():
         document.getElementsByTagName('head')[0].appendChild(jquery_script);"""
       )
   time.sleep(5)
-  driver.execute_script('inst = new Mark(document.gquerySelector("body")); var isMarked = inst.mark("COMMUNICATION"); console.log(isMarked)')
+  # driver.execute_script('inst = new Mark(document.querySelector("body")); var isMarked = inst.mark("COMMUNICATION"); console.log(isMarked)')
 
   S = lambda X: driver.execute_script('return document.body.parentNode.scroll'+X)
   driver.set_window_size(S('Width'),S('Height'))                                                                                                               
