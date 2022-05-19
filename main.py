@@ -1,8 +1,10 @@
 # from crypt import methods
 
+from distutils.log import error
 from lib2to3.pgen2 import driver
 from pickle import TRUE
 import time
+from unittest import result
 
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -15,8 +17,10 @@ import numpy as np
 from skimage.metrics import structural_similarity as compare_ssim
 from selenium.webdriver.support.ui import WebDriverWait
 from Screenshot import Screenshot_Clipping
-
-
+# from webdriver_manager.microsoft import EdgeChromiumDriverManager
+from selenium import webdriver
+from selenium.webdriver.edge.service import Service
+import sqlite3
 
 app = Flask(__name__)
 MIN_AREA = 200
@@ -170,14 +174,22 @@ def sportTheDifferenceBetweenImagesMethod3():
 @app.route('/api/launch-browser', methods=['GET'])
 def launchBrowserAndEmbed():
   driver = driverInitialization()
-  driver.get('https://worldwide.espacenet.com/3.2/rest-services/legal/publication/EP/0546789/A2.json')
+  # s=Service(EdgeChromiumDriverManager().install())
+  # driver = webdriver.Edge(service=s)
+  driver.get('https://www.polivy.com/hcp/safety-profile.html')
   driver.execute_script("""var jquery_script = document.createElement('script'); 
+        options = {"accuracy": {"value": "exactly","limiters": [",", "."]}};
         jquery_script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js';
-        jquery_script.onload = function(){inst = new Mark(document.querySelector("body")); var isMarked = inst.mark("COMMUNICATION"); console.log(isMarked)};
         document.getElementsByTagName('head')[0].appendChild(jquery_script);"""
       )
+        # jquery_script.onload = function(){inst = new Mark(document.querySelector("body")); 
+        # var isMarked = inst.mark("More Than Just A Transaction",{
+        #   accuracy: "exactly",
+        #   separateWordSearch: false,
+        # }); 
+        # console.log(isMarked)};
   time.sleep(5)
-  # driver.execute_script('inst = new Mark(document.querySelector("body")); var isMarked = inst.mark("COMMUNICATION"); console.log(isMarked)')
+  driver.execute_script('inst = new Mark(document.querySelector("body")); var isMarked = inst.mark("Treatment with POLIVY can cause serious or severe myelosuppression, including neutropenia, thrombocytopenia, and anemia. In patients treated with POLIVY plus bendamustine and a rituximab product (BR) (n=45), 42% received primary prophylaxis with granulocyte colony-stimulating factor. Grade 3 or higher hematologic adverse reactions included neutropenia (42%), thrombocytopenia (40%), anemia (24%), lymphopenia (13%), and febrile neutropenia (11%).", { accuracy: "exactly", separateWordSearch: false, }); ')
 
   S = lambda X: driver.execute_script('return document.body.parentNode.scroll'+X)
   driver.set_window_size(S('Width'),S('Height'))                                                                                                               
@@ -189,14 +201,14 @@ def launchBrowserAndEmbed():
 @app.route('/api/launch-browser-2', methods=['GET'])
 def launchBrowserAndEmbed2():
   driver = firefoxDriverInitialization()
-  driver.get('https://worldwide.espacenet.com/3.2/rest-services/legal/publication/EP/0546789/A2.json')
+  driver.get('https://timesofindia.indiatimes.com/sports')
   driver.execute_script("""var jquery_script = document.createElement('script'); 
         jquery_script.src = 'https://cdnjs.cloudflare.com/ajax/libs/mark.js/8.11.1/mark.min.js';
         jquery_script.onload = function(){inst = new Mark(document.querySelector("body")); var isMarked = inst.mark("COMMUNICATION"); console.log(isMarked)};
         document.getElementsByTagName('head')[0].appendChild(jquery_script);"""
       )
   time.sleep(5)
-  driver.execute_script('inst = new Mark(document.gquerySelector("body")); var isMarked = inst.mark("COMMUNICATION"); console.log(isMarked)')
+  driver.execute_script('inst = new Mark(document.querySelector("body")); var isMarked = inst.mark("COMMUNICATION"); console.log(isMarked)')
 
   S = lambda X: driver.execute_script('return document.body.parentNode.scroll'+X)
   driver.set_window_size(S('Width'),S('Height'))                                                                                                               
@@ -208,7 +220,7 @@ def launchBrowserAndEmbed2():
 
 def driverInitialization():
     options = webdriver.ChromeOptions()
-    # options.headless = True
+    options.headless = True
     webdriver.DesiredCapabilities.CHROME['acceptSslCerts'] = True
     driver = webdriver.Chrome(executable_path='./chromedriver.exe',options=options)
     return driver
@@ -218,6 +230,30 @@ def firefoxDriverInitialization():
     driver.maximize_window()
     return driver
 
-app.run(port=5000)
+
+try:
+  # Connect to DB and create a cursor
+  sqliteConnection = sqlite3.connect('test.db')
+  cursor = sqliteConnection.cursor()
+  print('DB Init')
+
+  #Write a query and execute it with cursor
+  query = 'select sqlite_version();'
+  cursor.execute(query)
+
+  #Fetch and output result
+  result = cursor.fetchall()
+  print('SQLite Version is {}'.format(result))
+
+  #Close the cursor
+  cursor.close()
+except sqlite3.Error as error:
+  print('Error Occured - ', error)
+
+finally:
+    if sqliteConnection:
+      sqliteConnection.close()
+      print('SQLite connection closed')
+app.run(port=3000, debug=True)
 
 
